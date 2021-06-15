@@ -119,8 +119,92 @@ include 'koneksi.php';
                 </div>
             </div>            
         </div> -->
-        <h1 class="text-center">Nama dan Alamat Pembeli</h1> 
-        <form method="POST" action="buat_pesanan.php" class="row g-3 needs-validation justify-content-center" novalidate>
+        <h1 class="text-center">Informasi Customer</h1> 
+        <form method="post">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="">Nama :</label>
+                        <input type="text" readonly value="<?php echo $_SESSION["pelanggan"] ['username'] ?>" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="">Alamat :</label>
+                        <input type="text" readonly value="<?php echo $_SESSION["pelanggan"] ['alamat'] ?>" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="">No Telepon :</label>
+                        <input type="text" readonly value="<?php echo $_SESSION["pelanggan"] ['tlpn'] ?>" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" name="id_ongkir">
+                        <option value="">Pilih Tujuan Pengiriman</option>
+                        <?php 
+                            $ambil= $connect->query("SELECT * FROM ongkir");
+                            while ($perongkir = $ambil->fetch_assoc()) {
+                        ?>        
+                        <option value="<?= $perongkir["id"] ?>">
+                            <?= $perongkir["nama_kota"]; ?> - 
+                            <?= number_format($perongkir["tarif"]); ?>
+                        </option>
+                        <?php } ?>
+                    </select>         
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success mt-3 mb-5" name="pesanan" style="width:200px;">Buat Pesanan</button>
+        </form>
+
+        <?php 
+        
+            if (isset($_POST["pesanan"])) {
+                $id_pelanggan   = $_SESSION["pelanggan"] ["id"];
+                $username   = $_SESSION["pelanggan"] ["username"];
+                $alamat   = $_SESSION["pelanggan"] ["alamat"];
+                $no   = $_SESSION["pelanggan"] ["tlpn"];
+                $id_ongkir      = $_POST["id_ongkir"];
+                $tgl_pembelian  = date("Y-m-d");
+
+                $ambil = $connect->query("SELECT * FROM ongkir WHERE id='$id_ongkir' ");
+                $arrayongkir = $ambil->fetch_assoc();
+                $customer = $connect->query("SELECT * FROM customer WHERE id='$id_pelanggan' ");
+                $tarif = $arrayongkir['tarif'];
+
+                $total_pembelian = $totalbelanja + $tarif;
+
+                mysqli_query($connect, "INSERT INTO pembelian (id_customer, id_ongkir, tgl_pembelian, total) VALUES
+                 ('$id_pelanggan', '$id_ongkir', '$tgl_pembelian', '$total_pembelian') ");
+
+                $id_pembelian = mysqli_insert_id($connect);
+                
+
+                foreach ($_SESSION['keranjang'] as $key => $jumlah) {
+                    $ambil= $connect->query("SELECT * FROM produk WHERE id_produk='$id' ");
+                    $pecah = $ambil->fetch_assoc();
+                    $subharga = $pecah['harga']*$jumlah;
+
+                    $nama_produk    = $pecah['nama_produk'];
+                    $jmlh_barang    = $jumlah;
+                    $harga          = $total_pembelian;
+
+                    $detail_pesanan = $connect->query("INSERT INTO pesanan (id_pembelian, username, alamat, no_tlp, nama_barang, jmlh_barang, harga) VALUES ('$id_pembelian', '$username', '$alamat', '$no', '$nama_produk', '$jmlh_barang', '$harga') ");
+                }
+
+                 if ($detail_pesanan) {
+                    echo "
+                    <script>
+                        alert('Pesanan Berhasil');
+                        document.location.href = 'transaksi.php';
+                    </script>
+                    ";
+                 }
+            }
+        
+        ?>
+        <!-- <form method="POST" action="buat_pesanan.php" class="row g-3 needs-validation justify-content-center" novalidate>
             <div class="col-md-12">
                 <label for="nama" class="form-label">Nama Lengkap Anda</label>
                 <input type="text" class="form-control" id="nama" name="nama" placeholder="Nama Lengkap Anda" required>
@@ -154,7 +238,7 @@ include 'koneksi.php';
             <div class="col-md-12">
                 <button type="submit" class="btn btn-success mt-3 mb-5" style="width:200px;">Buat Pesanan</button>              
             </div>
-        </form>
+        </form> -->
 
         <!-- <div class="row">                  
             <div class="col">

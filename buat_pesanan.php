@@ -18,9 +18,6 @@
     $nama   = $_POST['nama'];
     $tlp    = $_POST['telp'];
     $alamat = $_POST['alamat'];
-    
-
-    
 
     $query = $connect->query("INSERT INTO pesanan SET nama='$nama', no_tlp='$tlp', alamat='$alamat', nama_barang='$nama_produk', jmlh_barang='$jmlh_barang', harga='$harga' ");
 

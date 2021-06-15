@@ -1,32 +1,38 @@
 <?php 
-session_start();
 
-include 'koneksi.php';
-
-if (!isset($_SESSION["pelanggan"])) {
-    echo "<script>alert('silahkan login terlebih dahulu')</script>";
-    echo "<script>location='login.php'</script>";
-}
+    session_start();
+    include('koneksi.php');
 
 ?>
-
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
     <link rel="stylesheet" href="fontawesome/css/all.min.css">
 
-    <title>chekout belanja</title>
-  </head>
-  <body>
-    
+    <style>
+        span {
+            position: absolute;
+            right: 35px;
+            color: gray;
+            margin-top: -30px;
+        }
+    </style>
 
-    <!-- navbar -->
+    <title>Login</title>
+</head>
+
+<body>
+
+
+        <!-- navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark text-white bg-success fixed-top">
         <div class="container">
             <h3><i class="fas fa-shopping-cart mr-2 mt-2"></i></h3>
@@ -46,15 +52,9 @@ if (!isset($_SESSION["pelanggan"])) {
                     <li class="nav-item active">
                         <a class="nav-link font-weight-bold mr-4" href="#">Contact</a>
                     </li>
-                    <?php if(isset($_SESSION["pelanggan"])) : ?>
-                        <li class="nav-item active">
-                            <a class="nav-link font-weight-bold mr-4" href="logout.php">Logout</a>
-                        </li>
-                    <?php else : ?>
-                        <li class="nav-item active">
-                            <a class="nav-link font-weight-bold mr-4" href="login.php">Login</a>
-                        </li>
-                    <?php endif; ?>
+                    <li class="nav-item active">
+                        <a class="nav-link font-weight-bold mr-4" href="login.php">Login</a>
+                    </li>
                 </ul>
                 <form class="form-inline my-2 my-lg-0" method="get" action="search.php">
                     <input class="form-control mr-sm-2" type="text" placeholder="Search" name="cari" >
@@ -71,63 +71,78 @@ if (!isset($_SESSION["pelanggan"])) {
         </div>
     </nav>
 
-
-    <section class="konten" style="margin-top: 80px;">
-        <div class='container'>
-            <h1 class="text-center mb-3">Chekout Belanja</h1>
-            <table class="table table-bordered">
-                <thead>
-                    <tr class="text-center">
-                        <th>No</th>
-                        <th>Nama Produk</th>
-                        <th>Harga</th>
-                        <th>Jumlah</th>
-                        <th>SubHarga</th>
-
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $no=1; ?>
-                    <?php $totalbelanja =0; ?>
-                    <?php foreach ($_SESSION['keranjang'] as $id => $jumlah ) : ?>
-                    <?php 
-                        $ambil= $connect->query("SELECT * FROM produk WHERE id_produk='$id' ");
-                        $pecah = $ambil->fetch_assoc();
-                        $subharga = $pecah['harga']*$jumlah;
-                    ?>
-                        <tr class="text-center">
-                            <td><?= $no ?></td>
-                            <td><?= $pecah['nama_produk']; ?></td>
-                            <td>Rp. <?= number_format($pecah['harga']); ?></td>
-                            <td><?= $jumlah; ?></td>
-                            <td>Rp. <?= number_format($subharga); ?></td>
-                        </tr>
-                    <?php $no++; ?>
-                    <?php $totalbelanja += $subharga; ?>
-                    <?php endforeach ?>
-                </tbody>
-                <tfoot>
-                    <tr class="text-center">
-                        <th colspan="4">Total Belanja</th>    
-                        <th>Rp. <?php echo number_format($totalbelanja); ?></th>
-                    </tr>
-                </tfoot>
-            </table>
-            
-            <div class="row">
-                <div class="col-md-8 text-left">
-                    <a href="pesanan.php" class="btn btn-success" style="width:200px;">Chekout Belanja</a>
-                </div>
-                
-            </div>            
+    <div class="container">
+    <br><br>
+        <h1 class="text-center mt-5 mb-5">Login Customer</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <form method="post" id="form">
+                    <div class="form-group mb-4">
+                        <label for="username" class="user">Username</label>
+                        <input type="username" class="form-control" id="username" name="username" placeholder="Username" required>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="password" class="pass">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                        <span>
+                            <i class="fas fa-eye-slash" id="eyes" onclick="toggle();"></i>
+                        </span>
+                    </div>
+                    <button type="submit" class="btn btn-success button mb-3" name="login" style="width: 100px;">Login</button>
+                    <p>Belum Punya Akun? <a href="form/register.php">Register Disini!</a></p>
+                </form>
+            </div>
         </div>
-    </section>
+    </div>
 
+
+
+    <?php 
+    
+        if (isset($_POST["login"])) {
+            $username = $_POST["username"];
+            $password = $_POST["password"];
+
+            $ambil = $connect->query("SELECT * FROM customer WHERE username='$username' AND password='$password' ");
+
+            $akunyangcocok = $ambil->num_rows;
+
+            if ($akunyangcocok==1) {
+                $akun = $ambil->fetch_assoc();
+                $_SESSION["pelanggan"] = $akun;
+                echo "<script>alert('anda sukses login')</script>";
+                echo "<script>location='chekout.php';</script>";
+            } else {
+                echo "<script>alert('anda gagal login')</script>";
+                echo "<script>location='login.php';</script>";
+            }
+        }
+    
+    ?>
+    
 
     <!-- Optional JavaScript -->
+    <script>
+        var state = false;
+
+        function toggle() {
+            if (state) {
+                document.getElementById("password").setAttribute("type", "password");
+                $("#eyes").removeClass('fas fa-eye');
+                $("#eyes").addClass('fas fa-eye-slash');
+                state = false;
+            } else {
+                document.getElementById("password").setAttribute("type", "text");
+                $("#eyes").removeClass('fas fa-eye-slash');
+                $("#eyes").addClass('fas fa-eye');
+                state = true;
+            }
+        }
+    </script>
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  </body>
+</body>
+
 </html>

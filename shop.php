@@ -1,5 +1,6 @@
 <?php
 
+session_start();
 include('koneksi.php');
 $query      = mysqli_query($connect, "SELECT * FROM produk");
 $results    = mysqli_fetch_all($query, MYSQLI_ASSOC);
@@ -44,6 +45,15 @@ $results    = mysqli_fetch_all($query, MYSQLI_ASSOC);
                     <li class="nav-item active">
                         <a class="nav-link font-weight-bold mr-4" href="#">Contact</a>
                     </li>
+                    <?php if(isset($_SESSION["pelanggan"])) : ?>
+                        <li class="nav-item active">
+                            <a class="nav-link font-weight-bold mr-4" href="logout.php">Logout</a>
+                        </li>
+                    <?php else : ?>
+                        <li class="nav-item active">
+                            <a class="nav-link font-weight-bold mr-4" href="login.php">Login</a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
                 <form class="form-inline my-2 my-lg-0" method="get" action="search.php">
                     <input class="form-control mr-sm-2" type="text" placeholder="Search" name="cari" >
@@ -59,7 +69,6 @@ $results    = mysqli_fetch_all($query, MYSQLI_ASSOC);
             </div>
         </div>
     </nav>
-
 
     <!-- content -->
 
